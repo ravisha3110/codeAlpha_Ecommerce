@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE — Curated Luxury, Thoughtfully Made{% endblock %}
+{% block meta_description %}Discover LUXE — a curated collection of premium clothing, footwear, accessories and lifestyle products. Minimal luxury, beautifully crafted.{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO SECTION
+═══════════════════════════════════════════════════════════ -->
+<section class="hero" aria-label="Hero section">
+
+  <!-- Left: Content -->
+  <div class="hero-content">
+    <div class="hero-eyebrow reveal">
+      <div class="hero-eyebrow-line"></div>
+      <span class="hero-eyebrow-text">New Collection 2024</span>
+    </div>
+
+    <h1 class="hero-title reveal reveal-delay-1">
+      Wear What<br>
+      <em>You Mean.</em>
+    </h1>
+
+    <p class="hero-subtitle reveal reveal-delay-2">
+      Premium essentials, thoughtfully designed. Each piece is a quiet statement — nothing superfluous, nothing missing.
+    </p>
+
+    <div class="hero-actions reveal reveal-delay-3">
+      <a href="{% url 'store:product_list' %}" class="btn btn-primary btn-lg">
+        Explore Collection
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="{% url 'store:product_list' %}?category=new" class="hero-link">
+        What's New
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <div class="hero-stats reveal reveal-delay-4">
+      <div class="hero-stat">
+        <div class="hero-stat-value" data-target="500" data-suffix="+">500+</div>
+        <div class="hero-stat-label">Premium Products</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" data-target="12000" data-suffix="+">12k+</div>
+        <div class="hero-stat-label">Happy Customers</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" data-target="4" data-suffix=".9★">4.9★</div>
+        <div class="hero-stat-label">Average Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Visual -->
+  <div class="hero-visual">
+    <div class="hero-image-wrap">
+      <!-- Premium fashion editorial style gradient placeholder -->
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#EAE4DC 0%,#D5CAB9 40%,#C4B49A 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;opacity:0.4;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:8rem;font-weight:300;color:#1F1F1F;line-height:1;">L</div>
+          <div style="font-family:'Inter',sans-serif;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:#7A7672;">Add your hero image via Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Card -->
+    <div class="hero-float-card">
+      <div class="hero-float-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="hero-float-label">Trending Now</div>
+        <div class="hero-float-value">Linen Collection</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORIES STRIP
+═══════════════════════════════════════════════════════════ -->
+<section class="categories-strip" aria-label="Product categories">
+  <div class="container">
+    <div class="categories-grid">
+      <a href="{% url 'store:product_list' %}" class="category-chip active">
+        <span class="category-chip-name">All Products</span>
+      </a>
+      {% for cat in categories %}
+      <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" class="category-chip">
+        <span class="category-chip-name">{{ cat.name }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TRENDING COLLECTION (Masonry Grid)
+═══════════════════════════════════════════════════════════ -->
+<section class="trending-section" aria-labelledby="trending-title">
+  <div class="container">
+
+    <div class="trending-header">
+      <div>
+        <span class="section-label">Featured Picks</span>
+        <h2 class="section-title" id="trending-title">
+          Trending <strong>Collection</strong>
+        </h2>
+      </div>
+      <a href="{% url 'store:product_list' %}" class="btn btn-outline">
+        View All
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    {% if featured_products %}
+    <div class="masonry-grid">
+      {% for product in featured_products %}
+      <a href="{% url 'store:product_detail' product.slug %}" class="masonry-item reveal" style="transition-delay: {{ forloop.counter0 }}00ms;">
+
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="masonry-item-image" loading="lazy" />
+        {% else %}
+        <div class="masonry-item-placeholder">
+          {% with cat=product.category.name|lower %}
+            {% if "cloth" in cat %}👕{% elif "foot" in cat or "shoe" in cat %}👟{% elif "bag" in cat %}👜{% elif "skin" in cat %}✨{% elif "access" in cat %}⌚{% else %}🛍️{% endif %}
+          {% endwith %}
+        </div>
+        {% endif %}
+
+        <div class="masonry-item-glass">
+          <div class="masonry-item-name">{{ product.name }}</div>
+          <div class="masonry-item-price">₹{{ product.price|floatformat:0 }}</div>
+          <span class="masonry-item-cta">
+            View Product
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🛍️</div>
+      <h3>No featured products yet</h3>
+      <p>Add products via the admin panel and mark them as featured.</p>
+      <a href="/admin/" class="btn btn-primary" style="margin-top:24px;">Go to Admin</a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WHY SHOP WITH US
+═══════════════════════════════════════════════════════════ -->
+<section class="whyus-section" aria-labelledby="whyus-title">
+  <div class="container">
+
+    <div class="text-center">
+      <span class="section-label reveal">Why Choose LUXE</span>
+      <h2 class="section-title reveal reveal-delay-1" id="whyus-title" style="color:white;">The <strong>LUXE</strong> Promise</h2>
+    </div>
+
+    <div class="whyus-grid">
+
+      <div class="whyus-card reveal">
+        <div class="whyus-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h4>Artisan Quality</h4>
+        <p>Every product is hand-selected by our curators. We partner only with craftspeople who share our obsession with quality and detail.</p>
+      </div>
+
+      <div class="whyus-card reveal reveal-delay-1">
+        <div class="whyus-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <h4>Free Express Shipping</h4>
+        <p>Orders above ₹1,999 ship free across India. Delivered within 2–4 business days, straight to your door.</p>
+      </div>
+
+      <div class="whyus-card reveal reveal-delay-2">
+        <div class="whyus-icon">
+          <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        </div>
+        <h4>30-Day Returns</h4>
+        <p>Not in love? Return any item within 30 days for a full refund. No questions, no hassle — your satisfaction is our priority.</p>
+      </div>
+
+      <div class="whyus-card reveal reveal-delay-3">
+        <div class="whyus-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <h4>Secure Payments</h4>
+        <p>256-bit SSL encryption on every transaction. We accept all major cards, UPI, and net banking with zero hidden fees.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CUSTOMER TESTIMONIALS
+═══════════════════════════════════════════════════════════ -->
+<section class="testimonials-section" aria-labelledby="reviews-title">
+  <div class="container">
+
+    <div class="text-center">
+      <span class="section-label reveal">Customer Stories</span>
+      <h2 class="section-title reveal reveal-delay-1" id="reviews-title">What Our <strong>Customers</strong> Say</h2>
+    </div>
+
+    <div class="testimonials-slider">
+      <div class="testimonials-track">
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">"The linen shirt I ordered is absolutely beautiful. The fabric quality is beyond what I expected at this price. I've received so many compliments — this is my third purchase from LUXE."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">A</div>
+            <div>
+              <div class="testimonial-name">Anika Sharma</div>
+              <div class="testimonial-location">Mumbai, Maharashtra</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">"I was skeptical at first, but the leather sneakers are genuinely premium. The unboxing experience alone felt luxurious. Fast delivery, beautiful packaging, perfect fit."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">R</div>
+            <div>
+              <div class="testimonial-name">Rohan Mehta</div>
+              <div class="testimonial-location">Bangalore, Karnataka</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">"LUXE has completely changed how I shop. The curation is impeccable — every item feels intentional. The face serum is now a non-negotiable part of my morning ritual."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">P</div>
+            <div>
+              <div class="testimonial-name">Priya Nair</div>
+              <div class="testimonial-location">Chennai, Tamil Nadu</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">"Ordered the canvas tote and the wool scarf together. Both arrived in two days, beautifully wrapped. The tote is incredibly sturdy — exactly what I needed for everyday use."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">V</div>
+            <div>
+              <div class="testimonial-name">Vikram Singh</div>
+              <div class="testimonial-location">Delhi, India</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">"The ceramic pour-over set is stunning. It's both functional and beautiful — a genuine piece of art for my kitchen. The coffee tastes better, or maybe I just enjoy making it more now!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">S</div>
+            <div>
+              <div class="testimonial-name">Sneha Iyer</div>
+              <div class="testimonial-location">Pune, Maharashtra</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="slider-controls">
+        <button class="slider-btn slider-btn-prev" aria-label="Previous testimonial">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="slider-dots">
+          <button class="slider-dot active" aria-label="Testimonial 1"></button>
+          <button class="slider-dot" aria-label="Testimonial 2"></button>
+          <button class="slider-dot" aria-label="Testimonial 3"></button>
+        </div>
+        <button class="slider-btn slider-btn-next" aria-label="Next testimonial">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NEWSLETTER
+═══════════════════════════════════════════════════════════ -->
+<section class="newsletter-section" aria-labelledby="newsletter-title">
+  <div class="container">
+    <div class="newsletter-inner">
+      <span class="section-label">Stay in the Loop</span>
+      <h2 class="section-title reveal" id="newsletter-title">
+        Join the <strong>LUXE</strong> Inner Circle
+      </h2>
+      <p class="reveal reveal-delay-1">Be the first to discover new arrivals, exclusive offers, and curated style guides. No spam — we promise.</p>
+
+      <form class="newsletter-form reveal reveal-delay-2" aria-label="Newsletter subscription">
+        <input
+          type="email"
+          class="newsletter-input"
+          placeholder="Enter your email address"
+          required
+          aria-label="Email address"
+          id="newsletter-email"
+        />
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+      <p class="newsletter-note">✦ Join 12,000+ subscribers. Unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}

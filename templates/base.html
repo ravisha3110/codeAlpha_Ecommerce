@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_description %}LUXE — Discover curated collections of premium products. Minimalist luxury for the discerning shopper.{% endblock %}" />
+  <title>{% block title %}LUXE — Premium E-Commerce{% endblock %}</title>
+
+  <!-- Preconnect for fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/store.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Django Messages ─────────────────────────────────────── -->
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div class="message message-{{ message.tags }}">
+    <span>{{ message }}</span>
+    <button class="message-close" aria-label="Close">✕</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Navbar ───────────────────────────────────────────────── -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <div class="navbar-inner">
+
+      <!-- Logo -->
+      <a href="{% url 'store:home' %}" class="navbar-logo" aria-label="LUXE Home">
+        LUX<span>E</span>
+      </a>
+
+      <!-- Search -->
+      <form class="navbar-search" action="{% url 'store:product_list' %}" method="GET" role="search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" name="q" placeholder="Search products…" value="{{ request.GET.q }}" aria-label="Search products" id="navbar-search-input" />
+      </form>
+
+      <!-- Nav Links -->
+      <div class="navbar-links">
+        <a href="{% url 'store:home' %}" class="nav-link">Home</a>
+        <a href="{% url 'store:product_list' %}" class="nav-link">Shop</a>
+        <a href="{% url 'store:product_list' %}?category=clothing" class="nav-link">Clothing</a>
+        <a href="{% url 'store:product_list' %}?category=accessories" class="nav-link">Accessories</a>
+      </div>
+
+      <!-- Right Actions -->
+      <div class="navbar-actions">
+
+        <!-- Cart -->
+        <a href="{% url 'store:cart' %}" class="nav-icon-btn" aria-label="Shopping cart ({{ cart_count }} items)" id="cart-btn">
+          <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          {% if cart_count > 0 %}
+          <span class="cart-badge" aria-label="{{ cart_count }} items in cart">{{ cart_count }}</span>
+          {% endif %}
+        </a>
+
+        <!-- User Menu -->
+        {% if user.is_authenticated %}
+        <div class="user-menu">
+          <button class="nav-icon-btn" aria-label="User account menu" aria-haspopup="true" id="user-menu-btn">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <div class="user-menu-dropdown" role="menu">
+            <div class="user-menu-item" style="cursor:default; opacity:0.6; font-size:0.8rem;">
+              {{ user.get_full_name|default:user.username }}
+            </div>
+            <div class="user-menu-divider"></div>
+            <a href="{% url 'store:order_history' %}" class="user-menu-item" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Order History
+            </a>
+            {% if user.is_staff %}
+            <a href="/admin/" class="user-menu-item" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Admin Panel
+            </a>
+            {% endif %}
+            <div class="user-menu-divider"></div>
+            <a href="{% url 'accounts:logout' %}" class="user-menu-item danger" role="menuitem">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </a>
+          </div>
+        </div>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline btn-sm">Sign In</a>
+        {% endif %}
+
+        <!-- Hamburger -->
+        <button class="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" id="hamburger-btn">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Mobile Menu Overlay ─────────────────────────────────── -->
+<div class="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation" id="mobile-menu">
+  <button class="mobile-close hamburger open" style="position:absolute;top:20px;right:20px;" id="mobile-close-btn" aria-label="Close menu">
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+  </button>
+
+  <nav>
+    <a href="{% url 'store:home' %}" class="mobile-nav-link">Home</a>
+    <a href="{% url 'store:product_list' %}" class="mobile-nav-link">Shop All</a>
+    <a href="{% url 'store:product_list' %}?category=clothing" class="mobile-nav-link">Clothing</a>
+    <a href="{% url 'store:product_list' %}?category=footwear" class="mobile-nav-link">Footwear</a>
+    <a href="{% url 'store:product_list' %}?category=accessories" class="mobile-nav-link">Accessories</a>
+    <a href="{% url 'store:product_list' %}?category=bags" class="mobile-nav-link">Bags</a>
+    <a href="{% url 'store:cart' %}" class="mobile-nav-link">Cart{% if cart_count > 0 %} ({{ cart_count }}){% endif %}</a>
+  </nav>
+
+  <div class="mobile-menu-actions">
+    {% if user.is_authenticated %}
+    <a href="{% url 'store:order_history' %}" class="btn btn-outline">My Orders</a>
+    <a href="{% url 'accounts:logout' %}" class="btn btn-ghost">Logout</a>
+    {% else %}
+    <a href="{% url 'accounts:login' %}" class="btn btn-primary">Sign In</a>
+    <a href="{% url 'accounts:register' %}" class="btn btn-outline">Register</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── Main Content ────────────────────────────────────────── -->
+<main id="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="{% url 'store:home' %}" class="navbar-logo">LUX<span>E</span></a>
+        <p>Curated luxury for modern living. Every piece is chosen with intention — crafted to last, designed to inspire.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="Twitter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+            </svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="Pinterest">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.14 1.22-5.14s-.31-.62-.31-1.55c0-1.45.84-2.54 1.89-2.54.89 0 1.32.67 1.32 1.47 0 .9-.57 2.24-.87 3.49-.25 1.04.52 1.88 1.53 1.88 1.83 0 3.07-2.33 3.07-5.09 0-2.1-1.42-3.67-3.98-3.67-2.9 0-4.71 2.17-4.71 4.6 0 .83.24 1.42.62 1.87.17.2.19.28.13.51-.04.17-.14.56-.18.72-.06.23-.24.31-.44.22-1.25-.51-1.84-1.88-1.84-3.42 0-2.54 2.14-5.6 6.41-5.6 3.44 0 5.71 2.49 5.71 5.16 0 3.54-1.96 6.19-4.86 6.19-.97 0-1.88-.52-2.19-1.1l-.61 2.36c-.19.74-.72 1.67-1.1 2.24.82.25 1.69.39 2.58.39 5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop -->
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <div class="footer-links">
+          <a href="{% url 'store:product_list' %}" class="footer-link">All Products</a>
+          <a href="{% url 'store:product_list' %}?category=clothing" class="footer-link">Clothing</a>
+          <a href="{% url 'store:product_list' %}?category=footwear" class="footer-link">Footwear</a>
+          <a href="{% url 'store:product_list' %}?category=accessories" class="footer-link">Accessories</a>
+          <a href="{% url 'store:product_list' %}?category=bags" class="footer-link">Bags</a>
+          <a href="{% url 'store:product_list' %}?category=skincare" class="footer-link">Skincare</a>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="footer-col">
+        <h5>Account</h5>
+        <div class="footer-links">
+          {% if user.is_authenticated %}
+          <a href="{% url 'store:order_history' %}" class="footer-link">My Orders</a>
+          <a href="{% url 'store:cart' %}" class="footer-link">Cart</a>
+          <a href="{% url 'accounts:logout' %}" class="footer-link">Logout</a>
+          {% else %}
+          <a href="{% url 'accounts:register' %}" class="footer-link">Create Account</a>
+          <a href="{% url 'accounts:login' %}" class="footer-link">Sign In</a>
+          <a href="{% url 'store:cart' %}" class="footer-link">Cart</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <div class="footer-links">
+          <span class="footer-link">support@luxe.com</span>
+          <span class="footer-link">+91 98765 43210</span>
+          <span class="footer-link">Mon–Sat, 10am–7pm IST</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2024 LUXE. All rights reserved. A college project by Ravisha.</p>
+      <div class="footer-bottom-links">
+        <a href="#" class="footer-bottom-link">Privacy</a>
+        <a href="#" class="footer-bottom-link">Terms</a>
+        <a href="#" class="footer-bottom-link">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Scripts ──────────────────────────────────────────────── -->
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/cart.js' %}"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

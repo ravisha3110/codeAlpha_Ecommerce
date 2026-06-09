@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders — LUXE{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{% url 'store:home' %}">Home</a> <span>›</span> <span>My Orders</span>
+    </div>
+    <h1 style="font-size:2.2rem;font-weight:300;">Order <strong>History</strong></h1>
+  </div>
+
+  {% if orders %}
+  <div class="orders-list">
+    {% for order in orders %}
+    <div class="order-card reveal">
+
+      <div class="order-card-header">
+        <div>
+          <div class="order-id">Order #{{ order.id }}</div>
+          <div class="order-date">{{ order.created_at|date:"F j, Y" }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="badge
+            {% if order.status == 'delivered' %}badge-success
+            {% elif order.status == 'shipped' %}badge-accent
+            {% elif order.status == 'cancelled' %}badge-danger
+            {% else %}badge-warning
+            {% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+      </div>
+
+      <div class="order-card-items">
+        {% for item in order.items.all %}
+        <div class="order-item-row">
+          <span class="order-item-name">{{ item.product_name }}</span>
+          <span class="order-item-qty">× {{ item.quantity }}</span>
+          <span class="order-item-price">₹{{ item.get_subtotal|floatformat:0 }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="order-card-footer">
+        <div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:2px;">Shipped to</div>
+          <div style="font-size:0.88rem;color:var(--primary);">{{ order.full_name }} · {{ order.city }}, {{ order.state }}</div>
+        </div>
+        <div class="order-total">₹{{ order.total_price|floatformat:0 }}</div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <h3>No orders yet</h3>
+    <p>When you place your first order, it will appear here.</p>
+    <a href="{% url 'store:product_list' %}" class="btn btn-primary btn-lg" style="margin-top:32px;">Start Shopping</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart — LUXE{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{% url 'store:home' %}">Home</a> <span>›</span> <span>Cart</span>
+    </div>
+    <h1 style="font-size:2.2rem;font-weight:300;">Your <strong>Cart</strong></h1>
+  </div>
+
+  {% if cart_items %}
+  <div class="cart-layout">
+
+    <!-- ── Cart Items ─────────────────────────────────────── -->
+    <div>
+      <div class="cart-items-list">
+        {% for item in cart_items %}
+        <div class="cart-item" id="cart-item-{{ item.id }}">
+
+          <!-- Image -->
+          <div class="cart-item-image">
+            {% if item.product.image %}
+            <a href="{% url 'store:product_detail' item.product.slug %}">
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" />
+            </a>
+            {% else %}
+            <div class="cart-item-placeholder">
+              {% with cat=item.product.category.name|lower %}
+                {% if "cloth" in cat %}👕{% elif "foot" in cat %}👟{% elif "bag" in cat %}👜{% elif "skin" in cat %}✨{% elif "access" in cat %}⌚{% else %}🛍️{% endif %}
+              {% endwith %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Details -->
+          <div class="cart-item-details">
+            {% if item.product.category %}
+            <div class="cart-item-category">{{ item.product.category.name }}</div>
+            {% endif %}
+            <div class="cart-item-name">
+              <a href="{% url 'store:product_detail' item.product.slug %}">{{ item.product.name }}</a>
+            </div>
+            <div class="cart-item-price">₹{{ item.product.price|floatformat:0 }} each</div>
+
+            <!-- Quantity -->
+            <form class="cart-qty-form" action="{% url 'store:update_cart' item.id %}" method="POST" style="margin-top:12px;">
+              {% csrf_token %}
+              <div class="qty-selector">
+                <button type="button" class="qty-btn" data-action="minus" aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" class="qty-input" aria-label="Quantity for {{ item.product.name }}" />
+                <button type="button" class="qty-btn" data-action="plus" aria-label="Increase quantity">+</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Subtotal + Remove -->
+          <div class="cart-item-actions">
+            <div class="cart-item-subtotal">₹{{ item.get_subtotal|floatformat:0 }}</div>
+            <form class="remove-item-form" action="{% url 'store:remove_from_cart' item.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="cart-item-remove" aria-label="Remove {{ item.product.name }} from cart">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Remove
+              </button>
+            </form>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Continue Shopping -->
+      <div style="margin-top:24px;">
+        <a href="{% url 'store:product_list' %}" class="btn btn-ghost" style="gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Order Summary ──────────────────────────────────── -->
+    <div class="cart-summary">
+      <div class="cart-summary-title">Order Summary</div>
+
+      <div class="summary-row">
+        <span class="summary-label">Subtotal ({{ cart.get_item_count }} item{{ cart.get_item_count|pluralize }})</span>
+        <span class="summary-value cart-total-value">₹{{ cart.get_total|floatformat:0 }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Shipping</span>
+        <span class="summary-value" style="color:#4CAF50;">
+          {% if cart.get_total >= 1999 %}Free{% else %}₹99{% endif %}
+        </span>
+      </div>
+      {% if cart.get_total < 1999 %}
+      <div style="font-size:0.8rem;color:var(--accent);margin-bottom:8px;">
+        Add ₹{{ 1999|add:"-"|floatformat:0 }} more for free shipping (₹{{ cart.get_total|floatformat:0 }} of ₹1,999)
+      </div>
+      {% endif %}
+
+      <div class="summary-row total">
+        <span class="summary-label">Total</span>
+        <span class="summary-value">
+          ₹{% if cart.get_total >= 1999 %}{{ cart.get_total|floatformat:0 }}{% else %}{{ cart.get_total|floatformat:0 }}{% endif %}
+        </span>
+      </div>
+
+      <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-lg" id="checkout-btn" style="width:100%;margin-top:24px;justify-content:center;">
+        Proceed to Checkout
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+
+      <div class="cart-summary-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secure SSL encrypted checkout
+      </div>
+    </div>
+
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🛒</div>
+    <h3>Your cart is empty</h3>
+    <p>Looks like you haven't added anything yet. Discover our curated collection.</p>
+    <a href="{% url 'store:product_list' %}" class="btn btn-primary btn-lg" style="margin-top:32px;">Start Shopping</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

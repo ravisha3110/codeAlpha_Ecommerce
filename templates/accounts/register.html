@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account — LUXE{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+
+  <!-- Visual Panel -->
+  <div class="auth-visual">
+    <div class="auth-visual-brand">LUX<span>E</span></div>
+    <p class="auth-visual-quote">
+      "Elegance is not about being noticed, it's about being remembered."
+      <br><br>
+      <span style="font-size:1rem;opacity:0.6;font-style:normal;">— Giorgio Armani</span>
+    </p>
+  </div>
+
+  <!-- Form Panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <h1 class="auth-form-title">Create Account</h1>
+      <p class="auth-form-subtitle">Join the LUXE community today</p>
+
+      <form method="POST" id="register-form">
+        {% csrf_token %}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label" for="id_first_name">First Name</label>
+            <input type="text" name="first_name" id="id_first_name" class="form-control"
+                   value="{{ form.first_name.value|default:'' }}"
+                   placeholder="First name" required autocomplete="given-name" />
+            {% if form.first_name.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_last_name">Last Name</label>
+            <input type="text" name="last_name" id="id_last_name" class="form-control"
+                   value="{{ form.last_name.value|default:'' }}"
+                   placeholder="Last name" required autocomplete="family-name" />
+            {% if form.last_name.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.last_name.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_email">Email Address</label>
+          <input type="email" name="email" id="id_email" class="form-control"
+                 value="{{ form.email.value|default:'' }}"
+                 placeholder="your@email.com" required autocomplete="email" />
+          {% if form.email.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.email.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_username">Username</label>
+          <input type="text" name="username" id="id_username" class="form-control"
+                 value="{{ form.username.value|default:'' }}"
+                 placeholder="Choose a username" required autocomplete="username" />
+          {% if form.username.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.username.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_password1">Password</label>
+          <input type="password" name="password1" id="id_password1" class="form-control"
+                 placeholder="Create a strong password" required autocomplete="new-password" />
+          {% if form.password1.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.password1.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_password2">Confirm Password</label>
+          <input type="password" name="password2" id="id_password2" class="form-control"
+                 placeholder="Repeat your password" required autocomplete="new-password" />
+          {% if form.password2.errors %}<span style="color:#C62828;font-size:0.78rem;">{{ form.password2.errors.0 }}</span>{% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="auth-error">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" id="register-btn">
+          Create Account
+        </button>
+
+      </form>
+
+      <div class="auth-form-switch">
+        Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed — LUXE{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="order-success-page">
+
+    <div class="order-success-icon">
+      <svg viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+
+    <span class="section-label">Order Confirmed</span>
+    <h1 style="font-size:2.4rem;font-weight:300;margin-bottom:16px;">
+      Thank You, <strong>{{ order.full_name|truncatewords:1 }}</strong>!
+    </h1>
+    <p style="margin-bottom:8px;">Your order has been placed successfully.</p>
+    <p style="margin-bottom:40px;font-size:1rem;color:var(--text);">
+      Order <strong>#{{ order.id }}</strong> · ₹{{ order.total_price|floatformat:0 }} total
+    </p>
+
+    <!-- Order Details -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-xl);padding:32px;text-align:left;margin-bottom:40px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;">Shipping to</div>
+          <div style="font-weight:500;color:var(--primary);">{{ order.full_name }}</div>
+          <div style="font-size:0.88rem;color:var(--text-muted);">{{ order.address }}, {{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+        </div>
+        <div>
+          <span class="badge badge-warning">{{ order.get_status_display }}</span>
+        </div>
+      </div>
+
+      {% for item in order.items.all %}
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+        <span style="color:var(--primary);">{{ item.product_name }} × {{ item.quantity }}</span>
+        <span style="font-weight:600;">₹{{ item.get_subtotal|floatformat:0 }}</span>
+      </div>
+      {% endfor %}
+
+      <div style="display:flex;justify-content:space-between;padding-top:16px;font-size:1rem;font-weight:700;color:var(--primary);">
+        <span>Total</span>
+        <span>₹{{ order.total_price|floatformat:0 }}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      {% if user.is_authenticated %}
+      <a href="{% url 'store:order_history' %}" class="btn btn-outline">View My Orders</a>
+      {% endif %}
+      <a href="{% url 'store:product_list' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

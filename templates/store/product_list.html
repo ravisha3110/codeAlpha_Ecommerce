@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop All Products — LUXE{% endblock %}
+{% block meta_description %}Explore LUXE's full collection of premium clothing, footwear, accessories, bags, skincare and lifestyle products.{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{% url 'store:home' %}">Home</a>
+      <span>›</span>
+      <span>Shop</span>
+      {% if selected_category %}<span>›</span><span style="text-transform:capitalize;">{{ selected_category }}</span>{% endif %}
+    </div>
+    <h1 style="font-size:2.4rem;font-weight:300;">
+      {% if query %}Results for "<em>{{ query }}</em>"
+      {% elif selected_category %}{{ selected_category|title }}
+      {% else %}All <strong>Products</strong>{% endif %}
+    </h1>
+  </div>
+
+  <div class="product-list-layout">
+
+    <!-- ── Sidebar ─────────────────────────────────────────── -->
+    <aside class="product-sidebar" aria-label="Product filters">
+
+      <!-- Categories -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">Categories</div>
+        <div class="category-filter-list">
+          <a href="{% url 'store:product_list' %}{% if query %}?q={{ query }}{% endif %}"
+             class="category-filter-item {% if not selected_category %}active{% endif %}">
+            All Products
+          </a>
+          {% for cat in categories %}
+          <a href="{% url 'store:product_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
+             class="category-filter-item {% if selected_category == cat.slug %}active{% endif %}">
+            {{ cat.name }}
+            <span style="font-size:0.75rem;color:var(--text-muted);">{{ cat.products.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Search Box (sidebar) -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">Search</div>
+        <form action="{% url 'store:product_list' %}" method="GET">
+          {% if selected_category %}
+          <input type="hidden" name="category" value="{{ selected_category }}">
+          {% endif %}
+          <div style="position:relative;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search products…"
+                   class="form-control" style="padding-right:40px;" aria-label="Search products" />
+            <button type="submit" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </aside>
+
+    <!-- ── Products ─────────────────────────────────────────── -->
+    <div>
+      <div class="products-toolbar">
+        <p class="products-count">
+          {% if products %}<strong>{{ products|length }}</strong> product{{ products|length|pluralize }} found{% endif %}
+        </p>
+        {% if query or selected_category %}
+        <a href="{% url 'store:product_list' %}" class="btn btn-ghost btn-sm">
+          Clear Filters ✕
+        </a>
+        {% endif %}
+      </div>
+
+      {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card reveal" style="transition-delay:{{ forloop.counter0|add:"0" }}0ms;">
+
+          <!-- Image -->
+          <div class="product-card-image">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" />
+            {% else %}
+            <div class="product-card-placeholder">
+              {% with cat=product.category.name|lower %}
+                {% if "cloth" in cat %}👕{% elif "foot" in cat or "shoe" in cat %}👟{% elif "bag" in cat %}👜{% elif "skin" in cat %}✨{% elif "access" in cat %}⌚{% else %}🛍️{% endif %}
+              {% endwith %}
+            </div>
+            {% endif %}
+
+            <!-- Badges -->
+            <div class="product-badge">
+              {% if product.discount_percentage %}
+              <span class="product-badge-sale">-{{ product.discount_percentage }}%</span>
+              {% elif product.is_featured %}
+              <span class="product-badge-new">Featured</span>
+              {% endif %}
+            </div>
+
+            <!-- Wishlist -->
+            <button class="product-wishlist" aria-label="Add {{ product.name }} to wishlist">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+
+            <!-- Quick Add -->
+            <div class="product-card-actions">
+              <form class="add-to-cart-form" action="{% url 'store:add_to_cart' product.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn-quick-add">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Quick Add
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="product-card-info">
+            {% if product.category %}
+            <span class="product-category-tag">{{ product.category.name }}</span>
+            {% endif %}
+            <h3 class="product-name">
+              <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
+            </h3>
+            <div class="product-price-row">
+              <span class="product-price">₹{{ product.price|floatformat:0 }}</span>
+              {% if product.compare_price %}
+              <span class="product-price-original">₹{{ product.compare_price|floatformat:0 }}</span>
+              {% if product.discount_percentage %}
+              <span class="product-price-discount">{{ product.discount_percentage }}% off</span>
+              {% endif %}
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No products found</h3>
+        <p>Try a different search term or browse all products.</p>
+        <a href="{% url 'store:product_list' %}" class="btn btn-primary" style="margin-top:24px;">Browse All Products</a>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

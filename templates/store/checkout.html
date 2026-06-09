@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout — LUXE{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{% url 'store:home' %}">Home</a> <span>›</span>
+      <a href="{% url 'store:cart' %}">Cart</a> <span>›</span>
+      <span>Checkout</span>
+    </div>
+    <h1 style="font-size:2.2rem;font-weight:300;">Secure <strong>Checkout</strong></h1>
+  </div>
+
+  <div class="checkout-layout">
+
+    <!-- ── Shipping Form ───────────────────────────────────── -->
+    <div class="checkout-form-card">
+      <h2 class="checkout-form-title">Shipping Information</h2>
+
+      <form method="POST" id="checkout-form">
+        {% csrf_token %}
+
+        <div class="checkout-form-grid">
+
+          <div class="form-group">
+            <label class="form-label" for="id_full_name">Full Name *</label>
+            <input type="text" name="full_name" id="id_full_name"
+                   class="form-control {% if form.full_name.errors %}error{% endif %}"
+                   value="{{ form.full_name.value|default:'' }}"
+                   placeholder="Your full name" required />
+            {% if form.full_name.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.full_name.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_phone">Phone Number *</label>
+            <input type="tel" name="phone" id="id_phone"
+                   class="form-control {% if form.phone.errors %}error{% endif %}"
+                   value="{{ form.phone.value|default:'' }}"
+                   placeholder="+91 00000 00000" required />
+            {% if form.phone.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.phone.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="id_email">Email Address *</label>
+            <input type="email" name="email" id="id_email"
+                   class="form-control {% if form.email.errors %}error{% endif %}"
+                   value="{{ form.email.value|default:'' }}"
+                   placeholder="your@email.com" required />
+            {% if form.email.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.email.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="id_address">Street Address *</label>
+            <textarea name="address" id="id_address"
+                      class="form-control {% if form.address.errors %}error{% endif %}"
+                      placeholder="House no., Street, Area" rows="3" required>{{ form.address.value|default:'' }}</textarea>
+            {% if form.address.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.address.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_city">City *</label>
+            <input type="text" name="city" id="id_city"
+                   class="form-control {% if form.city.errors %}error{% endif %}"
+                   value="{{ form.city.value|default:'' }}"
+                   placeholder="Mumbai" required />
+            {% if form.city.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.city.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_state">State *</label>
+            <input type="text" name="state" id="id_state"
+                   class="form-control {% if form.state.errors %}error{% endif %}"
+                   value="{{ form.state.value|default:'' }}"
+                   placeholder="Maharashtra" required />
+            {% if form.state.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.state.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_postal_code">Postal Code *</label>
+            <input type="text" name="postal_code" id="id_postal_code"
+                   class="form-control {% if form.postal_code.errors %}error{% endif %}"
+                   value="{{ form.postal_code.value|default:'' }}"
+                   placeholder="400001" required />
+            {% if form.postal_code.errors %}
+            <span style="color:#C62828;font-size:0.8rem;">{{ form.postal_code.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <!-- Payment Note -->
+        <div style="background:var(--secondary);border-radius:var(--radius-md);padding:18px 20px;margin-top:8px;margin-bottom:28px;">
+          <div style="font-size:0.85rem;font-weight:600;color:var(--primary);margin-bottom:6px;">
+            💳 Payment on Delivery
+          </div>
+          <p style="font-size:0.82rem;margin:0;">This is a demo project. No real payment is processed. Your order will be confirmed upon submission.</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="place-order-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Place Order — ₹{{ cart.get_total|floatformat:0 }}
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ── Order Summary ──────────────────────────────────── -->
+    <div class="checkout-summary-card">
+      <div class="cart-summary-title">Order Summary</div>
+
+      <div class="checkout-items-list">
+        {% for item in cart_items %}
+        <div class="checkout-item">
+          <div class="checkout-item-image">
+            {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" />
+            {% else %}
+            <div class="checkout-item-placeholder">🛍️</div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="checkout-item-name">{{ item.product.name }}</div>
+            <div class="checkout-item-qty">Qty: {{ item.quantity }}</div>
+          </div>
+          <div class="checkout-item-price">₹{{ item.get_subtotal|floatformat:0 }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="summary-row">
+        <span class="summary-label">Subtotal</span>
+        <span class="summary-value">₹{{ cart.get_total|floatformat:0 }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Shipping</span>
+        <span class="summary-value" style="color:#4CAF50;">
+          {% if cart.get_total >= 1999 %}Free{% else %}₹99{% endif %}
+        </span>
+      </div>
+      <div class="summary-row total">
+        <span class="summary-label">Total</span>
+        <span class="summary-value">₹{{ cart.get_total|floatformat:0 }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
