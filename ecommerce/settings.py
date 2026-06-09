@@ -4,7 +4,6 @@ Django settings for ecommerce project.
 
 from pathlib import Path
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,7 +60,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
-
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
     'default': {
@@ -70,11 +68,15 @@ DATABASES = {
     }
 }
 
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+_db_url = os.environ.get('DATABASE_URL', '').strip().strip('"').strip("'")
+if _db_url:
+    try:
+        import dj_database_url as _dj
+        _parsed = _dj.config(default=_db_url, conn_max_age=600)
+        if _parsed:
+            DATABASES['default'] = _parsed
+    except Exception:
+        pass  # Fall back to SQLite if the URL is malformed
 
 
 # ── Password Validation ───────────────────────────────────────────────────────
